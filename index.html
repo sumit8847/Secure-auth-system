@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+   B.Tech Assignment - Secure User Authentication System
+   Frontend: AngularJS
+   File: index.html  (Main Shell / Entry Point)
+  ============================================================
+   This is the SINGLE PAGE of our Single Page Application.
+   AngularJS dynamically swaps the content inside ng-view
+   without ever reloading this page.
+
+   Libraries loaded here:
+     - AngularJS 1.8.x  → core framework
+     - angular-route    → for $routeProvider (client routing)
+  ============================================================
+-->
+<html lang="en" ng-app="authApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureAuth — B.Tech Assignment</title>
+
+  <!-- ── Google Fonts ──────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- ── AngularJS 1.8 (CDN) ──────────────────────────────── -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <!-- angular-route adds $routeProvider and ng-view support -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+
+  <!-- ════════════════════════════════════════════════════════
+       STYLES — all in one <style> block for easy submission
+       ════════════════════════════════════════════════════════ -->
+  <style>
+
+    /* ── CSS Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── CSS Variables (design tokens) ────────────────────── */
+    :root {
+      --bg          : #0f1117;
+      --surface     : #181c27;
+      --surface2    : #1e2435;
+      --border      : #2a3148;
+      --accent      : #4f8ef7;
+      --accent-glow : rgba(79, 142, 247, 0.18);
+      --green       : #34d399;
+      --red         : #f87171;
+      --text        : #e2e8f0;
+      --text-muted  : #8899b4;
+      --font        : 'DM Sans', sans-serif;
+      --mono        : 'DM Mono', monospace;
+      --radius      : 14px;
+      --shadow      : 0 8px 40px rgba(0,0,0,0.45);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── ng-view container ───────────────────────────────── */
+    [ng-view] {
+      min-height: 100vh;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       LOGIN PAGE STYLES
+       ════════════════════════════════════════════════════════ */
+
+    .auth-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(79,142,247,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(52,211,153,0.05) 0%, transparent 50%),
+        var(--bg);
+      padding: 2rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      animation: slideUp 0.4s ease both;
+    }
+
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(20px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .auth-header {
+      padding: 2.4rem 2.4rem 2rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--surface2), var(--surface));
+    }
+
+    .lock-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      background: var(--accent-glow);
+      border: 1.5px solid rgba(79,142,247,0.3);
+      border-radius: 14px;
+      color: var(--accent);
+      margin-bottom: 1.2rem;
+    }
+
+    .lock-icon svg { width: 26px; height: 26px; }
+
+    .auth-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .auth-subtitle {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      margin-top: 0.4rem;
+    }
+
+    .auth-form {
+      padding: 2rem 2.4rem 2.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+   .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+   .input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  height: 52px;
+  display: block;
+  padding: 0.75rem 0.9rem 0.75rem 3rem;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+    .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* ── Alert Messages ─────────────────────────────────── */
+    .alert {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      border-radius: 9px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .alert-icon {
+      font-size: 0.8rem;
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .alert-error {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid rgba(248, 113, 113, 0.25);
+      color: var(--red);
+    }
+
+    .alert-error .alert-icon {
+      background: rgba(248,113,113,0.2);
+      color: var(--red);
+    }
+
+    .alert-success {
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      color: var(--green);
+    }
+
+    .alert-success .alert-icon {
+      background: rgba(52,211,153,0.2);
+      color: var(--green);
+    }
+
+    /* ── Primary Button ─────────────────────────────────── */
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.35);
+      margin-top: 0.4rem;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(79,142,247,0.45);
+    }
+
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .loading-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .demo-hint {
+      margin: 0 2.4rem 1.8rem;
+      padding: 0.65rem 1rem;
+      background: rgba(79,142,247,0.07);
+      border: 1px dashed rgba(79,142,247,0.3);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       DASHBOARD STYLES
+       ════════════════════════════════════════════════════════ */
+
+    .dashboard-wrapper {
+      min-height: 100vh;
+      background: var(--bg);
+      animation: fadeIn 0.35s ease;
+    }
+
+    /* ── Navbar ─────────────────────────────────────────── */
+    .dash-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 62px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .nav-logo { font-size: 1.3rem; }
+
+    .nav-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(79,142,247,0.25);
+      padding: 2px 8px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .nav-user {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .user-dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .btn-logout {
+      padding: 0.45rem 1rem;
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--red);
+      color: var(--red);
+      background: rgba(248,113,113,0.07);
+    }
+
+    /* ── Main Content ───────────────────────────────────── */
+    .dash-main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+
+    .welcome-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: linear-gradient(135deg, var(--surface2), var(--surface));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 2.2rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .welcome-banner h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .highlight { color: var(--accent); }
+
+    .welcome-banner p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    .token-badge {
+      padding: 0.65rem 1.2rem;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.25);
+      border-radius: 99px;
+    }
+
+    .token-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    /* ── Cards Grid ─────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .info-card:hover {
+      border-color: rgba(79,142,247,0.35);
+      transform: translateY(-2px);
+    }
+
+    .card-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 2px; }
+
+    .card-body h3 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .card-body p {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* ── Info Box ───────────────────────────────────────── */
+    .info-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .info-box strong { color: var(--accent); }
+
+    /* ── How It Works ───────────────────────────────────── */
+    .how-it-works {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.8rem 2rem;
+    }
+
+    .how-it-works h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .how-it-works ol {
+      padding-left: 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .how-it-works li strong { color: var(--text); }
+
+    .dash-error { margin-top: 2rem; }
+
+    /* ── Responsive ─────────────────────────────────────── */
+    @media (max-width: 500px) {
+      .dash-navbar { padding: 0 1rem; }
+      .dash-main   { padding: 1.5rem 1rem; }
+      .welcome-banner { padding: 1.4rem; }
+      .welcome-banner h1 { font-size: 1.3rem; }
+      .nav-user { display: none; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!--
+    ng-view is a placeholder. AngularJS replaces this with:
+      - login.html    when route is #/login
+      - dashboard.html when route is #/dashboard
+  -->
+  <div ng-view></div>
+
+  <!-- ── Load our AngularJS scripts in the correct order ── -->
+  <!--
+    ORDER MATTERS:
+    1. app.js      → defines the 'authApp' module (must be first)
+    2. authService.js → adds AuthService to the module
+    3. interceptor.js → adds AuthInterceptor to the module
+  -->
+  <script src="app.js"></script>
+  <script src="authService.js"></script>
+  <script src="interceptor.js"></script>
+
+</body>
+</html>

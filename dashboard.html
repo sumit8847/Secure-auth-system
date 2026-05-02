@@ -1,0 +1,118 @@
+<!--
+  ============================================================
+   B.Tech Assignment - Secure User Authentication System
+   Frontend: AngularJS
+   File: dashboard.html  (Protected Dashboard Template)
+  ============================================================
+   This view is ONLY accessible after successful login.
+   If user tries to access this URL without a token,
+   the route resolver in app.js redirects them to /login.
+  ============================================================
+-->
+
+<div class="dashboard-wrapper">
+
+  <!-- ── Top Navigation Bar ──────────────────────────────── -->
+  <nav class="dash-navbar">
+    <div class="nav-brand">
+      <span class="nav-logo">🔐</span>
+      <span class="nav-title">SecureAuth &nbsp;<span class="nav-badge">Dashboard</span></span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-user">
+        <span class="user-dot"></span>
+        Welcome, <strong>{{ currentUser }}</strong>
+      </span>
+      <!-- Logout button calls $scope.logout() in DashboardController -->
+      <button class="btn-logout" ng-click="logout()">
+        Logout &nbsp;⏻
+      </button>
+    </div>
+  </nav>
+
+  <!-- ── Main Content Area ───────────────────────────────── -->
+  <main class="dash-main">
+
+    <!-- ── Success: Dashboard Data Loaded ──────────────────── -->
+    <div ng-show="dashboardData">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h1>Hello, <span class="highlight">{{ dashboardData.user }}</span> 👋</h1>
+          <p>You have successfully authenticated. This page is protected by JWT.</p>
+        </div>
+        <div class="token-badge">
+          <span class="token-label">🔑 JWT Verified</span>
+        </div>
+      </div>
+
+      <!-- Info Cards Grid -->
+      <div class="cards-grid">
+
+        <!-- Card 1: Login Time -->
+        <div class="info-card">
+          <div class="card-icon">🕒</div>
+          <div class="card-body">
+            <h3>Login Time</h3>
+            <p>{{ dashboardData.loginTime }}</p>
+          </div>
+        </div>
+
+        <!-- Card 2: User Info -->
+        <div class="info-card">
+          <div class="card-icon">👤</div>
+          <div class="card-body">
+            <h3>Logged In As</h3>
+            <p>{{ dashboardData.user }}</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Security Status -->
+        <div class="info-card">
+          <div class="card-icon">🛡️</div>
+          <div class="card-body">
+            <h3>Security Status</h3>
+            <p>Active Session</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Auth Method -->
+        <div class="info-card">
+          <div class="card-icon">🔒</div>
+          <div class="card-body">
+            <h3>Auth Method</h3>
+            <p>JSON Web Token (JWT)</p>
+          </div>
+        </div>
+
+      </div><!-- /cards-grid -->
+
+      <!-- Info Message from Backend -->
+      <div class="info-box">
+        <strong>Backend says:</strong> {{ dashboardData.info }}
+      </div>
+
+      <!-- How It Works Section (useful for viva) -->
+      <div class="how-it-works">
+        <h3>How This System Works</h3>
+        <ol>
+          <li>User submits credentials → Backend validates and returns a <strong>JWT token</strong></li>
+          <li>Token is stored in <strong>localStorage</strong> by AuthService</li>
+          <li>HTTP Interceptor automatically attaches the token to every <strong>/api/*</strong> request</li>
+          <li>Backend verifies the token on protected routes using <strong>jwt.verify()</strong></li>
+          <li>On logout, token is removed from localStorage and user is redirected to login</li>
+        </ol>
+      </div>
+
+    </div><!-- /ng-show dashboardData -->
+
+    <!-- ── Error: Failed to load data ──────────────────────── -->
+    <div ng-show="loadError" class="alert alert-error dash-error">
+      <span class="alert-icon">✕</span>
+      {{ loadError }}
+    </div>
+
+  </main><!-- /dash-main -->
+
+</div><!-- /dashboard-wrapper -->
