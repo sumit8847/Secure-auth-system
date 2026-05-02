@@ -1,8 +1,8 @@
 # Secure User Authentication System
 
-## Student Assignment Submission
+## Assignment Submission
 
-This project is developed as part of B.Tech Web Technology Assignment.
+This project is developed as a Assigment of MEAN.
 
 ### Frontend:
 - AngularJS
